@@ -16,5 +16,15 @@ export default defineConfig(({ command }) => ({
     outDir: 'dist',
     sourcemap: false,
     chunkSizeWarningLimit: 1200,
+    rollupOptions: {
+      output: {
+        // The two heavyweight rendering libraries are split out so the first
+        // paint does not wait on them and they stay cached across deploys.
+        manualChunks: {
+          lottie: ['lottie-react', 'lottie-web'],
+          d3: ['d3'],
+        },
+      },
+    },
   },
 }));
