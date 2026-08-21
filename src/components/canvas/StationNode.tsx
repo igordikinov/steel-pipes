@@ -1,5 +1,7 @@
 import { motion } from 'framer-motion';
 import { MachineArt } from '@/components/machines';
+import { MachineImage } from '@/components/machines/MachineImage';
+import { MACHINE_IMAGES } from '@/components/machines/machineImages';
 import {
   ACCENT,
   BRAND_50,
@@ -106,16 +108,21 @@ export function StationNode({ def, view, dimmed, greyed, fill, metricValue }: St
         </text>
         <circle cx={INNER - 4} cy={-HALF_H + 20} r={5} fill={accent} />
 
-        <MachineArt
-          kind={def.machine}
-          active={active}
-          accent={accent}
-          slots={view?.slotCount ?? def.capacity}
-          queueCapacity={view?.queueCapacity ?? def.queueCapacity}
-          stock={stock}
-          columns={rackColumns(def)}
-          fill={fill}
-        />
+        {/* Photos where a render exists; racks stay SVG so live stock fills them. */}
+        {MACHINE_IMAGES[def.machine] ? (
+          <MachineImage kind={def.machine} active={active} accent={accent} greyed={greyed} />
+        ) : (
+          <MachineArt
+            kind={def.machine}
+            active={active}
+            accent={accent}
+            slots={view?.slotCount ?? def.capacity}
+            queueCapacity={view?.queueCapacity ?? def.queueCapacity}
+            stock={stock}
+            columns={rackColumns(def)}
+            fill={fill}
+          />
+        )}
 
         {overflow > 0 ? (
           <g>

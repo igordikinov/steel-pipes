@@ -1,17 +1,31 @@
 import { useState } from 'react';
+import exploded from '@/assets/img/anatomy/exploded.png';
+import threadMacro from '@/assets/img/anatomy/thread-macro.png';
+import wallEccentricity from '@/assets/img/anatomy/wall-eccentricity.png';
+import pipeCoupled from '@/assets/img/pipe/pipe-coupled.png';
 import { Panel } from '@/components/ui/Panel';
 import { Pressable } from '@/components/ui/Pressable';
+import { Segmented } from '@/components/ui/Segmented';
 import { ECCENTRICITY_TOLERANCE_PERCENT, WALL_TOLERANCE_PERCENT } from '@/core/constants';
 import { formatNumber } from '@/core/scenario';
 import { useSimulationControls } from '@/state/SimulationContext';
 import { FormingSequence } from './FormingSequence';
 import { PipeCrossSection } from './PipeCrossSection';
+import { PipeCutaway } from './PipeCutaway';
 import { ThreadCallout } from './ThreadCallout';
+
+type CutawayView = 'photo' | 'scheme';
+
+const VIEW_OPTIONS: Array<{ value: CutawayView; label: string }> = [
+  { value: 'photo', label: 'Фото' },
+  { value: 'scheme', label: 'Схема' },
+];
 
 /** Anatomy tab: what a seamless pipe is, and how the steel gets that shape. */
 export function AnatomyView() {
   const { scenario } = useSimulationControls();
   const [selected, setSelected] = useState<string | null>(null);
+  const [view, setView] = useState<CutawayView>('photo');
   const { construction, assemblyLayers, composition, spec, product } = scenario;
   // The metal-to-metal seal only exists on the premium connection.
   const isPremium = construction.some((part) => part.id === 'seal');
@@ -24,8 +38,21 @@ export function AnatomyView() {
           title={product}
           className="min-w-0 flex-[3]"
           bodyClassName="min-h-0 p-2"
+          action={
+            <Segmented
+              ariaLabel="Вид разреза"
+              options={VIEW_OPTIONS}
+              value={view}
+              onChange={setView}
+              compact
+            />
+          }
         >
-          <PipeCrossSection parts={construction} selectedId={selected} onSelect={setSelected} />
+          {view === 'photo' ? (
+            <PipeCutaway parts={construction} selectedId={selected} premium={isPremium} />
+          ) : (
+            <PipeCrossSection parts={construction} selectedId={selected} onSelect={setSelected} />
+          )}
         </Panel>
 
         <Panel
@@ -54,6 +81,12 @@ export function AnatomyView() {
           <p className="mt-2 text-[10px] leading-snug text-ink-400">
             Химия задаёт группу прочности: тот же передел, другая марка — другая труба.
           </p>
+          <figure className="mt-3 rounded-xl border border-line bg-surface p-2">
+            <img src={exploded} alt="Разнесённая схема резьбового соединения" className="w-full object-contain" />
+            <figcaption className="mt-1 text-center text-[10px] text-ink-400">
+              Соединение в разборе: ниппель — муфта — ниппель
+            </figcaption>
+          </figure>
         </Panel>
 
         <Panel
@@ -120,6 +153,29 @@ export function AnatomyView() {
             ))}
           </div>
 
+          <div className="mt-3 grid grid-cols-2 gap-2">
+            <figure className="rounded-xl border border-line bg-surface p-2">
+              <img
+                src={wallEccentricity}
+                alt="Сечение трубы с разностенностью"
+                className="mx-auto h-24 w-auto object-contain"
+              />
+              <figcaption className="mt-1 text-center text-[10px] text-ink-400">
+                Сечение: стенка неравномерна по окружности
+              </figcaption>
+            </figure>
+            <figure className="rounded-xl border border-line bg-surface p-2">
+              <img
+                src={isPremium ? pipeCoupled : threadMacro}
+                alt={isPremium ? 'Труба с навинченной муфтой' : 'Резьба на конце трубы крупным планом'}
+                className="mx-auto h-24 w-auto object-contain"
+              />
+              <figcaption className="mt-1 text-center text-[10px] text-ink-400">
+                {isPremium ? 'Труба с навинченной муфтой' : 'Трапецеидальная резьба BTC'}
+              </figcaption>
+            </figure>
+          </div>
+
           {isPremium ? <ThreadCallout /> : null}
 
           <p className="mt-2 rounded-xl border border-line bg-surface-muted px-3 py-2 text-[10px] leading-snug text-ink-400">
@@ -137,7 +193,7 @@ export function AnatomyView() {
         className="min-h-0 flex-[2]"
         bodyClassName="min-h-0"
       >
-        <FormingSequence layers={assemblyLayers} />
+        <FormingSequence layers={assemblyLayers} premium={isPremium} />
       </Panel>
     </div>
   );

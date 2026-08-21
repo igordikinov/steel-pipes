@@ -121,6 +121,18 @@ for (const layer of scenario.assemblyLayers) {
 }
 expect(anatomyText.includes('Химический состав'), 'the steel chemistry panel is missing');
 expect(anatomyText.includes('Формоизменение заготовки'), 'the forming sequence panel is missing');
+expect(
+  container.querySelector('img[alt*="Разрез"]') !== null,
+  'the anatomy tab is missing the photoreal cutaway',
+);
+press('Схема');
+await wait(200);
+expect(
+  container.querySelector('[aria-label="Разрез бесшовной трубы"]') !== null,
+  'the «Схема» toggle does not reveal the SVG section drawing',
+);
+press('Фото');
+await wait(200);
 
 press('Материалы');
 await wait(300);
@@ -184,8 +196,11 @@ expect(
   container.querySelectorAll('svg').length >= svgRootsCasing,
   'the premium canvas lost SVG roots after the variant switch',
 );
-// Every machine is inline SVG — no raster asset may reach the canvas.
-expect(container.querySelectorAll('svg image').length === 0, 'the canvas must not use raster <image> elements');
+// Process stations render as photos; the racks stay SVG so live stock fills them.
+expect(
+  container.querySelectorAll('svg image').length > 0,
+  'the canvas is missing the photoreal machine renders',
+);
 expect(
   container.querySelectorAll('button').length === 0 && container.querySelectorAll('input').length === 0,
   'native <button>/<input> elements must not appear after switching variant',
@@ -249,6 +264,23 @@ expect(
 );
 press('Онлайн');
 await wait(150);
+
+// Every process station on the line must have a render; buffer and warehouse
+// deliberately do not, because their SVG racks visualise live stock.
+const { MACHINE_IMAGES } = await import('../src/components/machines/machineImages');
+for (const kind of [
+  'billets', 'furnace', 'piercer', 'mill', 'reducer', 'coolbed', 'straightener',
+  'inspection', 'cutting', 'threading', 'coupling', 'threadcheck', 'bundle',
+]) {
+  const href = (MACHINE_IMAGES as Record<string, string | undefined>)[kind];
+  expect(typeof href === 'string' && href.length > 0, `MACHINE_IMAGES is missing a render for "${kind}"`);
+}
+for (const kind of ['buffer', 'warehouse']) {
+  expect(
+    (MACHINE_IMAGES as Record<string, string | undefined>)[kind] === undefined,
+    `"${kind}" must keep its SVG rack, not a photo`,
+  );
+}
 
 // Product token: cold billet -> heated -> shell -> pipe -> threaded -> coupled,
 // with the edge tinted by the variant once the steel is no longer glowing.

@@ -1,17 +1,30 @@
 import { AnimatePresence, motion } from 'framer-motion';
 import { Fragment, useEffect, useState } from 'react';
+import stage1 from '@/assets/img/forming/stage-1.png';
+import stage2 from '@/assets/img/forming/stage-2.png';
+import stage3 from '@/assets/img/forming/stage-3.png';
+import stage4 from '@/assets/img/forming/stage-4.png';
+import stage5 from '@/assets/img/forming/stage-5.png';
+import stage6 from '@/assets/img/forming/stage-6.png';
+import pipeCoupled from '@/assets/img/pipe/pipe-coupled.png';
+import finishedPipe from '@/assets/img/pipe/pipe.png';
 import { Pressable } from '@/components/ui/Pressable';
 import { ChevronRightIcon } from '@/components/ui/icons';
 import { ASSEMBLY_STEP_MS, MOTION_BASE, MOTION_EASE } from '@/core/constants';
 import type { AssemblyLayer } from '@/core/types';
 import { FormingTile } from './FormingTile';
 
+/** Section of the stock after each forming step, in step order. */
+const STAGE_IMAGES = [stage1, stage2, stage3, stage4, stage5, stage6];
+
 export interface FormingSequenceProps {
   layers: AssemblyLayer[];
+  /** Premium pipes leave the line with a coupling already screwed on. */
+  premium?: boolean;
 }
 
 /** Forming sequence: solid billet → heated → shell → rolled → sized → pipe. */
-export function FormingSequence({ layers }: FormingSequenceProps) {
+export function FormingSequence({ layers, premium = false }: FormingSequenceProps) {
   const [step, setStep] = useState(0);
   const [playing, setPlaying] = useState(true);
 
@@ -75,7 +88,15 @@ export function FormingSequence({ layers }: FormingSequenceProps) {
                 animate={{ scale: index === step ? 1 : 0.94, opacity: index <= step ? 1 : 0.4 }}
                 transition={{ duration: MOTION_BASE, ease: MOTION_EASE }}
               >
-                <FormingTile stepId={layer.id} active={index === step} />
+                {STAGE_IMAGES[index] ? (
+                  <img
+                    src={STAGE_IMAGES[index]}
+                    alt={layer.name}
+                    className="h-[92%] w-[92%] object-contain"
+                  />
+                ) : (
+                  <FormingTile stepId={layer.id} active={index === step} />
+                )}
               </motion.div>
               <span
                 className={`text-center text-[10px] font-semibold leading-tight ${
@@ -85,11 +106,26 @@ export function FormingSequence({ layers }: FormingSequenceProps) {
                 {layer.name}
               </span>
             </div>
-            {index === layers.length - 1 ? null : (
-              <ChevronRightIcon className="mb-[18px] h-4 w-4 shrink-0 text-ink-300" />
-            )}
+            <ChevronRightIcon className="mb-[18px] h-4 w-4 shrink-0 text-ink-300" />
           </Fragment>
         ))}
+        <div className="flex w-[100px] flex-col items-center gap-1.5">
+          <motion.div
+            className="flex h-[88px] w-[88px] items-center justify-center rounded-xl2 border border-brand-200 bg-brand-50/60"
+            initial={false}
+            animate={{ scale: complete ? 1 : 0.92, opacity: complete ? 1 : 0.5 }}
+            transition={{ duration: MOTION_BASE, ease: MOTION_EASE }}
+          >
+            <img
+              src={premium ? pipeCoupled : finishedPipe}
+              alt={premium ? 'Труба с муфтой' : 'Готовая бесшовная труба'}
+              className="h-[86%] w-[86%] object-contain"
+            />
+          </motion.div>
+          <span className="text-center text-[10px] font-bold leading-tight text-brand-600">
+            {premium ? 'Труба с муфтой' : 'Готовая труба'}
+          </span>
+        </div>
       </div>
 
       <AnimatePresence mode="wait">

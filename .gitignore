@@ -17,3 +17,6 @@ dist-ssr
 
 # Beads / Dolt files (added by bd init)
 .beads/proxieddb/
+
+# Raw 1024×1024 renders; run npm run assets to rebuild src/assets/img
+uploads/
