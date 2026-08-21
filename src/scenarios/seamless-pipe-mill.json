@@ -1,0 +1,814 @@
+{
+  "id": "seamless-pipe-mill",
+  "name": "Трубопрокатный агрегат",
+  "product": "Обсадная 168,3 × 8,94 J55, резьба BTC",
+  "unitLabel": "труба",
+  "releaseIntervalMinutes": 2.5,
+  "canvas": {
+    "width": 1850,
+    "height": 880
+  },
+  "params": {
+    "furnaceTime": 6,
+    "piercerTime": 1.6,
+    "millTime": 1.5,
+    "threadingTime": 14,
+    "inspectionTime": 2,
+    "threadingCount": 4,
+    "batchSize": 1,
+    "bufferCapacity": 40,
+    "couplingTime": 3,
+    "couplingCount": 1,
+    "bundlingMinutes": 10,
+    "changeoverMinutes": 60,
+    "campaignSize": 6
+  },
+  "optimisedParams": {
+    "threadingCount": 8,
+    "threadingTime": 10,
+    "bufferCapacity": 24
+  },
+  "paramDefs": [
+    {
+      "key": "furnaceTime",
+      "label": "Нагрев заготовки",
+      "unit": "мин",
+      "min": 2,
+      "max": 12,
+      "step": 0.5,
+      "group": "time",
+      "hint": "Сквозной прогрев заготовки в кольцевой печи до 1250 °C"
+    },
+    {
+      "key": "piercerTime",
+      "label": "Прошивка",
+      "unit": "мин",
+      "min": 0.6,
+      "max": 4,
+      "step": 0.2,
+      "group": "time",
+      "hint": "Цикл прошивного стана: заготовка раскрывается в гильзу"
+    },
+    {
+      "key": "millTime",
+      "label": "Раскатка PQF",
+      "unit": "мин",
+      "min": 0.5,
+      "max": 4,
+      "step": 0.5,
+      "group": "time",
+      "hint": "Цикл непрерывного стана: гильза раскатывается на оправке"
+    },
+    {
+      "key": "threadingTime",
+      "label": "Нарезка резьбы",
+      "unit": "мин",
+      "min": 4,
+      "max": 24,
+      "step": 0.5,
+      "group": "time",
+      "hint": "Цикл резьбонарезного станка на оба конца трубы"
+    },
+    {
+      "key": "inspectionTime",
+      "label": "Контроль и гидроиспытание",
+      "unit": "мин",
+      "min": 0.5,
+      "max": 6,
+      "step": 0.5,
+      "group": "time",
+      "hint": "УЗК, электромагнитный контроль и опрессовка трубы"
+    },
+    {
+      "key": "threadingCount",
+      "label": "Резьбонарезные станки",
+      "unit": "шт",
+      "min": 1,
+      "max": 12,
+      "step": 1,
+      "group": "capacity",
+      "hint": "Число параллельных резьбонарезных станков"
+    },
+    {
+      "key": "batchSize",
+      "label": "Размер партии",
+      "unit": "шт",
+      "min": 1,
+      "max": 8,
+      "step": 1,
+      "group": "capacity",
+      "hint": "Число заготовок, запускаемых в агрегат за один вызов со склада"
+    },
+    {
+      "key": "bufferCapacity",
+      "label": "Карман перед резьбой",
+      "unit": "шт",
+      "min": 8,
+      "max": 64,
+      "step": 4,
+      "group": "capacity",
+      "hint": "Промежуточный запас труб перед резьбонарезным участком"
+    }
+  ],
+  "nodes": [
+    {
+      "id": "billets",
+      "index": 1,
+      "name": "Склад заготовки",
+      "subtitle": "Круглая заготовка Ø 156 мм",
+      "kind": "source",
+      "machine": "billets",
+      "processMinutes": 0,
+      "capacity": 0,
+      "queueCapacity": 0,
+      "transportMinutes": 1.2,
+      "next": "furnace",
+      "x": 150,
+      "y": 240,
+      "dir": 1,
+      "narration": "Мерная заготовка вызывается со склада."
+    },
+    {
+      "id": "furnace",
+      "index": 2,
+      "name": "Кольцевая печь",
+      "subtitle": "Нагрев до 1250 °C",
+      "kind": "process",
+      "machine": "furnace",
+      "processMinutes": 6,
+      "capacity": 4,
+      "queueCapacity": 8,
+      "transportMinutes": 1.2,
+      "next": "piercer",
+      "x": 460,
+      "y": 240,
+      "dir": 1,
+      "timeParam": "furnaceTime",
+      "transformsAppearance": true,
+      "narration": "Заготовка прогревается насквозь до температуры прокатки."
+    },
+    {
+      "id": "piercer",
+      "index": 3,
+      "name": "Прошивной стан",
+      "subtitle": "Гильза по способу Маннесмана",
+      "kind": "process",
+      "machine": "piercer",
+      "processMinutes": 1.6,
+      "capacity": 1,
+      "queueCapacity": 6,
+      "transportMinutes": 1.2,
+      "next": "mill",
+      "x": 770,
+      "y": 240,
+      "dir": 1,
+      "timeParam": "piercerTime",
+      "transformsAppearance": true,
+      "narration": "Бочкообразные валки раскрывают осевую полость — рождается гильза."
+    },
+    {
+      "id": "mill",
+      "index": 4,
+      "name": "Непрерывный стан",
+      "subtitle": "PQF: раскатка на оправке",
+      "kind": "process",
+      "machine": "mill",
+      "processMinutes": 1.5,
+      "capacity": 1,
+      "queueCapacity": 6,
+      "transportMinutes": 1.2,
+      "next": "reducer",
+      "x": 1080,
+      "y": 240,
+      "dir": 1,
+      "timeParam": "millTime",
+      "narration": "Гильза раскатывается на оправке — стенка выходит на размер."
+    },
+    {
+      "id": "reducer",
+      "index": 5,
+      "name": "Редукционный стан",
+      "subtitle": "Растяжение до диаметра",
+      "kind": "process",
+      "machine": "reducer",
+      "processMinutes": 1.4,
+      "capacity": 1,
+      "queueCapacity": 6,
+      "transportMinutes": 1.2,
+      "next": "coolbed",
+      "x": 1390,
+      "y": 240,
+      "dir": 1,
+      "narration": "Без оправки, натяжением между клетями труба доводится до диаметра."
+    },
+    {
+      "id": "coolbed",
+      "index": 6,
+      "name": "Холодильник",
+      "subtitle": "Реечное охлаждение",
+      "kind": "process",
+      "machine": "coolbed",
+      "processMinutes": 8,
+      "capacity": 8,
+      "queueCapacity": 8,
+      "transportMinutes": 1.4,
+      "next": "straightener",
+      "x": 1700,
+      "y": 240,
+      "dir": 1,
+      "transformsAppearance": true,
+      "narration": "На реечном холодильнике труба остывает и теряет свечение."
+    },
+    {
+      "id": "straightener",
+      "index": 7,
+      "name": "Правка",
+      "subtitle": "Косовалковая правильная машина",
+      "kind": "process",
+      "machine": "straightener",
+      "processMinutes": 1.2,
+      "capacity": 2,
+      "queueCapacity": 6,
+      "transportMinutes": 1.2,
+      "next": "inspection",
+      "x": 1700,
+      "y": 640,
+      "dir": -1,
+      "narration": "Косые валки снимают кривизну, набранную при охлаждении."
+    },
+    {
+      "id": "inspection",
+      "index": 8,
+      "name": "Контроль",
+      "subtitle": "УЗК, ЭМК и гидроиспытание",
+      "kind": "process",
+      "machine": "inspection",
+      "processMinutes": 2,
+      "capacity": 2,
+      "queueCapacity": 6,
+      "transportMinutes": 1.2,
+      "next": "cutting",
+      "x": 1390,
+      "y": 640,
+      "dir": -1,
+      "timeParam": "inspectionTime",
+      "narration": "Тело трубы проходит ультразвук и опрессовку давлением."
+    },
+    {
+      "id": "cutting",
+      "index": 9,
+      "name": "Резка и торцовка",
+      "subtitle": "Резка в размер, снятие фаски",
+      "kind": "process",
+      "machine": "cutting",
+      "processMinutes": 1.6,
+      "capacity": 2,
+      "queueCapacity": 6,
+      "transportMinutes": 1.2,
+      "next": "stock",
+      "x": 1080,
+      "y": 640,
+      "dir": -1,
+      "narration": "Труба режется в мерную длину, торцы обрабатываются под резьбу."
+    },
+    {
+      "id": "stock",
+      "index": 10,
+      "name": "Буферный карман",
+      "subtitle": "Запас перед резьбой",
+      "kind": "buffer",
+      "machine": "buffer",
+      "processMinutes": 0,
+      "capacity": 0,
+      "queueCapacity": 40,
+      "transportMinutes": 1.2,
+      "next": "threading",
+      "x": 770,
+      "y": 640,
+      "dir": -1,
+      "rackColumns": 8,
+      "queueParam": "bufferCapacity",
+      "narration": "Трубы ждут перед ограничением."
+    },
+    {
+      "id": "threading",
+      "index": 11,
+      "name": "Нарезка резьбы",
+      "subtitle": "Резьбонарезные станки",
+      "kind": "process",
+      "machine": "threading",
+      "processMinutes": 14,
+      "capacity": 4,
+      "queueCapacity": 6,
+      "transportMinutes": 1.4,
+      "next": "warehouse",
+      "x": 460,
+      "y": 640,
+      "dir": -1,
+      "timeParam": "threadingTime",
+      "capacityParam": "threadingCount",
+      "transformsAppearance": true,
+      "narration": "На обоих концах трубы нарезается трапецеидальная резьба."
+    },
+    {
+      "id": "warehouse",
+      "index": 12,
+      "name": "Готовая продукция",
+      "subtitle": "Маркировка и отгрузка",
+      "kind": "sink",
+      "machine": "warehouse",
+      "processMinutes": 0,
+      "capacity": 0,
+      "queueCapacity": 0,
+      "transportMinutes": 0,
+      "next": null,
+      "x": 150,
+      "y": 640,
+      "dir": -1,
+      "narration": "Готовые трубы маркируются и пакетируются под отгрузку."
+    }
+  ],
+  "construction": [
+    {
+      "id": "surface",
+      "index": 1,
+      "name": "Наружная поверхность",
+      "role": "Зона контроля дефектов и коррозии",
+      "detail": "После прокатки окалина сбивается; поверхность проходит УЗК и электромагнитный контроль",
+      "color": "#7C8798"
+    },
+    {
+      "id": "wall",
+      "index": 2,
+      "name": "Стенка трубы",
+      "role": "Несёт внутреннее давление и осевую нагрузку колонны",
+      "detail": "Номинальная толщина 8,94 мм; минусовой допуск по ГОСТ/API — до −12,5 %",
+      "color": "#5A6473"
+    },
+    {
+      "id": "bore",
+      "index": 3,
+      "name": "Внутренний канал",
+      "role": "Проходное сечение для флюида и инструмента",
+      "detail": "Внутренний диаметр 150,4 мм; проверяется калибром-шаблоном (drift test)",
+      "color": "#3F7FB3"
+    },
+    {
+      "id": "eccentricity",
+      "index": 4,
+      "name": "Разностенность",
+      "role": "Ключевой параметр качества бесшовной трубы",
+      "detail": "Смещение оправки и валков даёт разную толщину стенки по окружности; допуск ±10 %",
+      "color": "#E2703A"
+    },
+    {
+      "id": "thread",
+      "index": 5,
+      "name": "Резьбовое соединение",
+      "role": "Герметичное свинчивание колонны",
+      "detail": "Трапецеидальная резьба BTC, 5 ниток на дюйм, конусность 1:16",
+      "color": "#D9A441"
+    },
+    {
+      "id": "coupling",
+      "index": 6,
+      "name": "Муфта",
+      "role": "Соединяет две трубы в колонну",
+      "detail": "Навинчивается на один конец с нормируемым моментом свинчивания",
+      "color": "#5D7A94"
+    }
+  ],
+  "assemblyLayers": [
+    {
+      "id": "billet",
+      "step": 1,
+      "name": "Заготовка",
+      "caption": "Круглая непрерывнолитая заготовка режется в мерную длину."
+    },
+    {
+      "id": "heated",
+      "step": 2,
+      "name": "Нагрев",
+      "caption": "В кольцевой печи заготовка прогревается насквозь до 1250 °C."
+    },
+    {
+      "id": "shell",
+      "step": 3,
+      "name": "Гильза",
+      "caption": "Прошивной стан раскрывает осевую полость: сплошная заготовка становится гильзой."
+    },
+    {
+      "id": "rough",
+      "step": 4,
+      "name": "Черновая труба",
+      "caption": "Непрерывный стан PQF раскатывает гильзу на оправке — стенка выходит на размер."
+    },
+    {
+      "id": "reduced",
+      "step": 5,
+      "name": "Редуцирование",
+      "caption": "Редукционно-растяжной стан натяжением задаёт окончательный диаметр."
+    },
+    {
+      "id": "finished",
+      "step": 6,
+      "name": "Готовая труба",
+      "caption": "После охлаждения, правки и резки труба выходит в размер — бесшовная по всей длине."
+    }
+  ],
+  "materials": [
+    {
+      "id": "billet-steel",
+      "name": "Стальная заготовка",
+      "purpose": "Основной металл: непрерывнолитая круглая заготовка",
+      "share": 62,
+      "stage": "billets",
+      "color": "#5A6473"
+    },
+    {
+      "id": "power",
+      "name": "Электроэнергия",
+      "purpose": "Приводы станов, насосы, вспомогательное оборудование",
+      "share": 12,
+      "stage": "mill",
+      "color": "#5B8DEF"
+    },
+    {
+      "id": "gas",
+      "name": "Природный газ",
+      "purpose": "Нагрев заготовки в кольцевой печи",
+      "share": 9,
+      "stage": "furnace",
+      "color": "#E2703A"
+    },
+    {
+      "id": "tooling",
+      "name": "Валки и оправки",
+      "purpose": "Прокатный инструмент: расход на тонну проката",
+      "share": 6,
+      "stage": "mill",
+      "color": "#B98A4A"
+    },
+    {
+      "id": "couplings",
+      "name": "Муфты",
+      "purpose": "Навинчиваются на трубу для соединения в колонну",
+      "share": 5,
+      "stage": "threading",
+      "color": "#5D7A94"
+    },
+    {
+      "id": "lubricant",
+      "name": "Технологическая смазка",
+      "purpose": "Смазка оправки и валков при прошивке",
+      "share": 2,
+      "stage": "piercer",
+      "color": "#D98A3B"
+    },
+    {
+      "id": "water",
+      "name": "Техническая вода",
+      "purpose": "Охлаждение инструмента и гидроиспытание",
+      "share": 2,
+      "stage": "inspection",
+      "color": "#3F7FB3"
+    },
+    {
+      "id": "thread-tools",
+      "name": "Резьбонарезной инструмент",
+      "purpose": "Твердосплавные пластины резьбонарезных станков",
+      "share": 1,
+      "stage": "threading",
+      "color": "#7C3AED"
+    },
+    {
+      "id": "preservation",
+      "name": "Консервация и маркировка",
+      "purpose": "Защита резьбы, предохранительные кольца, краска",
+      "share": 1,
+      "stage": "warehouse",
+      "color": "#4F9A5E"
+    }
+  ],
+  "composition": [
+    { "symbol": "C", "name": "Углерод", "percent": 0.3 },
+    { "symbol": "Mn", "name": "Марганец", "percent": 1.35 },
+    { "symbol": "Si", "name": "Кремний", "percent": 0.25 },
+    { "symbol": "Cr", "name": "Хром", "percent": 0.15 },
+    { "symbol": "Ni", "name": "Никель", "percent": 0.1 },
+    { "symbol": "Cu", "name": "Медь", "percent": 0.1 },
+    { "symbol": "S", "name": "Сера", "percent": 0.005 },
+    { "symbol": "P", "name": "Фосфор", "percent": 0.012 },
+    { "symbol": "Fe", "name": "Железо", "percent": 97.7, "basis": true }
+  ],
+  "spec": {
+    "temperatureC": [1230, 1280],
+    "pressureBar": [190, 250]
+  },
+  "presentation": [
+    { "title": "Нагрев и прошивка", "narration": "Заготовка прогревается до 1250 °C и на прошивном стане раскрывается в гильзу.", "toc": false, "aps": false, "params": { "threadingCount": 4, "threadingTime": 14, "bufferCapacity": 40, "batchSize": 1 } },
+    { "title": "Прокатка", "narration": "Непрерывный стан и редукционно-растяжной стан выводят трубу на размер за считаные минуты.", "toc": false, "aps": false },
+    { "title": "Ограничение", "narration": "Нарезка резьбы занимает 14 минут на трубу — самая медленная операция агрегата.", "toc": true, "aps": false },
+    { "title": "Незавершённое производство", "narration": "Трубы копятся в кармане перед резьбонарезным участком, пока горячий передел работает вхолостую.", "toc": true, "aps": false },
+    { "title": "Расширить ограничение", "narration": "Теория ограничений: мощность добавляется там, где это важно. Резьбонарезных станков становится с 4 до 8.", "toc": true, "aps": false, "params": { "threadingCount": 8, "threadingTime": 10, "bufferCapacity": 24 } },
+    { "title": "Поток восстановлен", "narration": "Карман рассасывается, время цикла падает, выработка выходит на план.", "toc": false, "aps": false },
+    { "title": "Планирование по мощности", "narration": "Движок APS планирует каждый заказ с учётом ограниченной мощности по всему маршруту.", "toc": false, "aps": true },
+    { "title": "Планирование поставок", "narration": "Стабильный выпуск делает планирование отгрузок и распределение предсказуемым.", "toc": false, "aps": false }
+  ],
+  "variants": [
+    {
+      "id": "casing",
+      "name": "Обсадная",
+      "product": "Обсадная 168,3 × 8,94 J55, резьба BTC",
+      "badge": "API 5CT"
+    },
+    {
+      "id": "tubing",
+      "name": "НКТ",
+      "product": "НКТ 73,0 × 5,51 L80, резьба NU",
+      "badge": "Tubing",
+      "params": {
+        "piercerTime": 1.2,
+        "millTime": 1,
+        "threadingTime": 11,
+        "inspectionTime": 1.5
+      },
+      "optimisedParams": {
+        "threadingTime": 8
+      },
+      "construction": [
+        {
+          "id": "surface",
+          "index": 1,
+          "name": "Наружная поверхность",
+          "role": "Работает в скважинной среде, подвержена коррозии",
+          "detail": "Сплошной УЗК и ЭМК по всей длине; допускается фосфатирование резьбовой части",
+          "color": "#7C8798"
+        },
+        {
+          "id": "wall",
+          "index": 2,
+          "name": "Стенка трубы",
+          "role": "Несёт вес колонны и внутреннее давление закачки",
+          "detail": "Номинальная толщина 5,51 мм, группа прочности L80 — закалка с отпуском",
+          "color": "#5A6473"
+        },
+        {
+          "id": "bore",
+          "index": 3,
+          "name": "Внутренний канал",
+          "role": "Подъём продукции скважины на поверхность",
+          "detail": "Внутренний диаметр 62,0 мм; чистота канала критична для спуска инструмента",
+          "color": "#3F7FB3"
+        },
+        {
+          "id": "eccentricity",
+          "index": 4,
+          "name": "Разностенность",
+          "role": "Ключевой параметр качества бесшовной трубы",
+          "detail": "На тонкой стенке разностенность заметнее: допуск сужается до ±8 %",
+          "color": "#E2703A"
+        },
+        {
+          "id": "thread",
+          "index": 5,
+          "name": "Резьбовое соединение",
+          "role": "Гладкое соединение NU без утолщения конца",
+          "detail": "Треугольная резьба API, 10 ниток на дюйм, конусность 1:16",
+          "color": "#D9A441"
+        },
+        {
+          "id": "coupling",
+          "index": 6,
+          "name": "Муфта",
+          "role": "Соединяет НКТ в лифтовую колонну",
+          "detail": "Наружный диаметр муфты 88,9 мм — определяет проходимость колонны",
+          "color": "#5D7A94"
+        }
+      ],
+      "composition": [
+        { "symbol": "C", "name": "Углерод", "percent": 0.28 },
+        { "symbol": "Mn", "name": "Марганец", "percent": 1.2 },
+        { "symbol": "Si", "name": "Кремний", "percent": 0.25 },
+        { "symbol": "Cr", "name": "Хром", "percent": 0.45 },
+        { "symbol": "Mo", "name": "Молибден", "percent": 0.15 },
+        { "symbol": "Ni", "name": "Никель", "percent": 0.1 },
+        { "symbol": "S", "name": "Сера", "percent": 0.004 },
+        { "symbol": "P", "name": "Фосфор", "percent": 0.01 },
+        { "symbol": "Fe", "name": "Железо", "percent": 97.5, "basis": true }
+      ],
+      "presentation": [
+        { "title": "Переход на НКТ", "narration": "Меньший диаметр — быстрее прошивка и раскатка, короче цикл резьбы. Тот же агрегат, другой такт.", "toc": false, "aps": false }
+      ]
+    },
+    {
+      "id": "premium",
+      "name": "Премиум-соединение",
+      "product": "Обсадная 244,5 × 11,99 P110, премиум-соединение",
+      "badge": "Премиум",
+      "params": {
+        "furnaceTime": 8,
+        "piercerTime": 2,
+        "millTime": 2,
+        "threadingTime": 16
+      },
+      "optimisedParams": {
+        "couplingTime": 3
+      },
+      "construction": [
+        {
+          "id": "surface",
+          "index": 1,
+          "name": "Наружная поверхность",
+          "role": "Зона контроля дефектов и коррозии",
+          "detail": "Сплошной УЗК, ЭМК и контроль толщины стенки по всей длине",
+          "color": "#7C8798"
+        },
+        {
+          "id": "wall",
+          "index": 2,
+          "name": "Стенка трубы",
+          "role": "Держит давление на большой глубине",
+          "detail": "Номинальная толщина 11,99 мм, группа прочности P110 — закалка с отпуском",
+          "color": "#5A6473"
+        },
+        {
+          "id": "bore",
+          "index": 3,
+          "name": "Внутренний канал",
+          "role": "Проходное сечение колонны",
+          "detail": "Внутренний диаметр 220,5 мм; проверяется калибром по всей длине",
+          "color": "#3F7FB3"
+        },
+        {
+          "id": "eccentricity",
+          "index": 4,
+          "name": "Разностенность",
+          "role": "Ключевой параметр качества бесшовной трубы",
+          "detail": "Для премиум-групп допуск ужесточается до ±7 %: иначе не держится момент свинчивания",
+          "color": "#E2703A"
+        },
+        {
+          "id": "thread",
+          "index": 5,
+          "name": "Премиум-резьба",
+          "role": "Газогерметичное соединение «металл — металл»",
+          "detail": "Клиновидный профиль с упорным торцом и конической уплотнительной поверхностью",
+          "color": "#D9A441"
+        },
+        {
+          "id": "coupling",
+          "index": 6,
+          "name": "Муфта",
+          "role": "Соединяет трубы и несёт уплотнение",
+          "detail": "Навинчивается на стенде с записью графика «момент — число оборотов»",
+          "color": "#5D7A94"
+        },
+        {
+          "id": "seal",
+          "index": 7,
+          "name": "Уплотнительный узел",
+          "role": "Газогерметичность при знакопеременных нагрузках",
+          "detail": "Конус-на-конус плюс упорный торец; проверяется опрессовкой газом",
+          "color": "#4F9A5E"
+        }
+      ],
+      "materials": [
+        { "id": "billet-steel", "name": "Стальная заготовка", "purpose": "Легированная сталь группы прочности P110", "share": 60, "stage": "billets", "color": "#5A6473" },
+        { "id": "power", "name": "Электроэнергия", "purpose": "Приводы станов, насосы, вспомогательное оборудование", "share": 11, "stage": "mill", "color": "#5B8DEF" },
+        { "id": "gas", "name": "Природный газ", "purpose": "Нагрев заготовки в кольцевой печи", "share": 9, "stage": "furnace", "color": "#E2703A" },
+        { "id": "tooling", "name": "Валки и оправки", "purpose": "Прокатный инструмент: расход на тонну проката", "share": 6, "stage": "mill", "color": "#B98A4A" },
+        { "id": "couplings", "name": "Муфты премиум-соединения", "purpose": "Механически обработанные муфты с уплотнением", "share": 8, "stage": "coupling", "color": "#5D7A94" },
+        { "id": "lubricant", "name": "Резьбовая смазка", "purpose": "Нормирует момент свинчивания и защищает резьбу", "share": 2, "stage": "coupling", "color": "#D98A3B" },
+        { "id": "water", "name": "Техническая вода", "purpose": "Охлаждение инструмента и гидроиспытание", "share": 2, "stage": "inspection", "color": "#3F7FB3" },
+        { "id": "thread-tools", "name": "Резьбонарезной инструмент", "purpose": "Профильные пластины под клиновидную резьбу", "share": 1, "stage": "threading", "color": "#7C3AED" },
+        { "id": "preservation", "name": "Консервация и маркировка", "purpose": "Предохранительные кольца и ниппели, краска", "share": 1, "stage": "warehouse", "color": "#4F9A5E" }
+      ],
+      "composition": [
+        { "symbol": "C", "name": "Углерод", "percent": 0.32 },
+        { "symbol": "Mn", "name": "Марганец", "percent": 0.9 },
+        { "symbol": "Si", "name": "Кремний", "percent": 0.25 },
+        { "symbol": "Cr", "name": "Хром", "percent": 1 },
+        { "symbol": "Mo", "name": "Молибден", "percent": 0.7 },
+        { "symbol": "V", "name": "Ванадий", "percent": 0.08 },
+        { "symbol": "S", "name": "Сера", "percent": 0.003 },
+        { "symbol": "P", "name": "Фосфор", "percent": 0.008 },
+        { "symbol": "Fe", "name": "Железо", "percent": 96.7, "basis": true }
+      ],
+      "spec": {
+        "temperatureC": [1240, 1290],
+        "pressureBar": [420, 620]
+      },
+      "presentation": [
+        { "title": "Премиум-соединение", "narration": "После резьбы труба идёт на муфтонаверточный стенд: момент свинчивания пишется графиком, затем контроль соединения и пакетирование.", "toc": false, "aps": false },
+        { "title": "Миграция ограничения", "narration": "Расширяем резьбонарезной участок — и ограничение переезжает на навинчивание муфт. Расшивать надо то ограничение, которое есть сейчас.", "toc": true, "aps": false, "params": { "threadingCount": 8, "threadingTime": 14, "couplingTime": 4 } }
+      ],
+      "canvas": {
+        "width": 1850,
+        "height": 1240
+      },
+      "extraParamDefs": [
+        {
+          "key": "couplingTime",
+          "label": "Навинчивание муфт",
+          "unit": "мин",
+          "min": 1,
+          "max": 8,
+          "step": 0.5,
+          "group": "premium",
+          "hint": "Свинчивание муфты с записью графика «момент — обороты»"
+        },
+        {
+          "key": "couplingCount",
+          "label": "Муфтонаверточные стенды",
+          "unit": "шт",
+          "min": 1,
+          "max": 4,
+          "step": 1,
+          "group": "premium",
+          "hint": "Число стендов навинчивания, работающих параллельно"
+        },
+        {
+          "key": "bundlingMinutes",
+          "label": "Пакетирование",
+          "unit": "мин",
+          "min": 0,
+          "max": 60,
+          "step": 5,
+          "group": "premium",
+          "hint": "Увязка в пакет, маркировка и установка предохранительных колец"
+        }
+      ],
+      "nodesPatch": {
+        "threading": {
+          "next": "coupling"
+        },
+        "warehouse": {
+          "index": 15,
+          "x": 770,
+          "y": 1040,
+          "dir": 1,
+          "narration": "Пакеты труб премиум-группы уходят на отгрузку."
+        }
+      },
+      "nodesAdd": [
+        {
+          "id": "coupling",
+          "index": 12,
+          "name": "Навинчивание муфт",
+          "subtitle": "Муфтонаверточный стенд",
+          "kind": "process",
+          "machine": "coupling",
+          "processMinutes": 3,
+          "capacity": 1,
+          "queueCapacity": 6,
+          "transportMinutes": 2,
+          "next": "threadCheck",
+          "x": 150,
+          "y": 640,
+          "dir": -1,
+          "timeParam": "couplingTime",
+          "capacityParam": "couplingCount",
+          "transformsAppearance": true,
+          "narration": "Муфта навинчивается с нормируемым моментом; график пишется на каждую трубу."
+        },
+        {
+          "id": "threadCheck",
+          "index": 13,
+          "name": "Контроль резьбы",
+          "subtitle": "Калибры и профилограмма",
+          "kind": "process",
+          "machine": "threadcheck",
+          "processMinutes": 1.2,
+          "capacity": 1,
+          "queueCapacity": 6,
+          "transportMinutes": 1.4,
+          "next": "bundling",
+          "x": 150,
+          "y": 1040,
+          "dir": 1,
+          "narration": "Проверяются профиль резьбы, натяг и график свинчивания."
+        },
+        {
+          "id": "bundling",
+          "index": 14,
+          "name": "Пакетирование",
+          "subtitle": "Увязка, маркировка, консервация",
+          "kind": "process",
+          "machine": "bundle",
+          "processMinutes": 10,
+          "capacity": 12,
+          "queueCapacity": 8,
+          "transportMinutes": 1.2,
+          "next": "warehouse",
+          "x": 460,
+          "y": 1040,
+          "dir": 1,
+          "rackColumns": 8,
+          "timeParam": "bundlingMinutes",
+          "narration": "Трубы увязываются в пакет, резьба закрывается предохранительными кольцами."
+        }
+      ]
+    }
+  ]
+}
